@@ -19,4 +19,3 @@ neo4j==5.27.0
 qdrant-client==1.12.1
 pytest==8.3.4
 ruff==0.8.4
-mypy==1.14.1
