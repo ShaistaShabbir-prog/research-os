@@ -1,17 +1,34 @@
 name: CI
-on: [push, pull_request]
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
 jobs:
-  api-tests:
+  test-api:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: researchos_production/apps/api
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
-        with: {python-version: '3.12'}
-      - run: cd apps/api && pip install -r requirements.txt && pytest
-  web-build:
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - run: PYTHONPATH=. python -m pytest app/tests/ -v
+
+  build-web:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: researchos_production/apps/web
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: {node-version: '22'}
-      - run: cd apps/web && npm install && npm run build
+        with:
+          node-version: "22"
+      - run: npm install
+      - run: npm run build
