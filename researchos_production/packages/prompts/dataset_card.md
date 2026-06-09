@@ -1,0 +1,1 @@
+Generate a dataset card for academic publication. Include purpose, file inventory, schema, collection process, intended use, not-intended use, license, ethical concerns, limitations, versioning, citation, and reproducibility notes.

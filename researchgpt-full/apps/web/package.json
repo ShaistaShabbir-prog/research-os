@@ -1,8 +1,0 @@
-{
-  "name": "researchgpt-web",
-  "version": "0.1.0",
-  "private": true,
-  "scripts": {"dev":"next dev","build":"next build","start":"next start","lint":"next lint"},
-  "dependencies": {"@types/node":"latest","@types/react":"latest","@types/react-dom":"latest","next":"15.1.4","react":"19.0.0","react-dom":"19.0.0","typescript":"latest","lucide-react":"^0.468.0"},
-  "devDependencies": {"autoprefixer":"latest","postcss":"latest","tailwindcss":"latest"}
-}

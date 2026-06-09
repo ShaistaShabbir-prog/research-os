@@ -1,0 +1,2 @@
+import { ScoreCard } from '@/components/ScoreCard';
+export default function Dashboard(){return <div className="space-y-6"><h1 className="text-4xl font-bold">Dashboard</h1><div className="grid gap-4 md:grid-cols-4"><ScoreCard title="Projects" value="12" description="Thesis, papers, datasets"/><ScoreCard title="Avg score" value="7.4" description="Supervisor review score"/><ScoreCard title="Datasets" value="5" description="Dataset cards generated"/><ScoreCard title="Graph nodes" value="842" description="Methods, papers, datasets"/></div></div>}

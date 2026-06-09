@@ -1,0 +1,1 @@
+{"entities":["Paper","Dataset","Method","Author","Institution","Metric","Result","Task"],"relations":["USES_DATASET","USES_METHOD","REPORTS_METRIC","IMPROVES_ON","CITES","AFFILIATED_WITH"]}

@@ -1,0 +1,1 @@
+Extract research graph entities and relations from academic text. Entity labels: Paper, Dataset, Method, Author, Institution, Metric, Result, Task. Relation labels: USES_DATASET, USES_METHOD, REPORTS_METRIC, IMPROVES_ON, CITES, AFFILIATED_WITH.

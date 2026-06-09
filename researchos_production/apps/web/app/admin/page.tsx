@@ -1,0 +1,1 @@
+export default function Admin(){return <div><h1 className='text-4xl font-bold'>Admin</h1><p className='mt-4 text-slate-300'>Usage, moderation, billing, audit logs, and support tooling go here.</p></div>}
