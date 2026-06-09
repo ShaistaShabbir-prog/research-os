@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: researchos-api
+    runtime: python
+    rootDir: researchos_production/apps/api
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: DATABASE_URL
+        generateValue: false
+      - key: LLM_PROVIDER
+        value: offline
+      - key: CORS_ORIGINS
+        value: https://researchos.vercel.app
+    plan: free
