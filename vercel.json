@@ -1,0 +1,9 @@
+{
+  "buildCommand": "cd researchos_production/apps/web && npm install && npm run build",
+  "outputDirectory": "researchos_production/apps/web/.next",
+  "installCommand": "cd researchos_production/apps/web && npm install",
+  "framework": "nextjs",
+  "rewrites": [
+    { "source": "/api/:path*", "destination": "https://researchos-api.onrender.com/api/:path*" }
+  ]
+}
