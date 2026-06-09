@@ -1,3 +1,15 @@
-export function ScoreCard({title,value,description}:{title:string;value:string;description:string}){
- return <div className="card"><div className="text-sm text-indigo-200">{title}</div><div className="mt-2 text-4xl font-bold">{value}</div><p className="mt-3 text-sm text-slate-300">{description}</p></div>
+interface ScoreCardProps {
+  title: string;
+  value: string | number;
+  description?: string;
+  color?: string;
+}
+export function ScoreCard({ title, value, description, color = "text-indigo-400" }: ScoreCardProps) {
+  return (
+    <div className="card">
+      <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-2">{title}</p>
+      <p className={`text-3xl font-bold ${color} mb-1`}>{value}</p>
+      {description && <p className="text-sm text-slate-400">{description}</p>}
+    </div>
+  );
 }
