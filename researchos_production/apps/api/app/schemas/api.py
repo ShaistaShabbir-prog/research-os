@@ -1,40 +1,54 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
+
 
 class ProjectCreate(BaseModel):
-    title: str = Field(min_length=2, max_length=255)
+    title: str
     project_type: str
     description: str | None = None
 
-class ProjectOut(ProjectCreate):
+
+class ProjectOut(BaseModel):
     id: int
+    title: str
+    project_type: str
+    description: str | None = None
+
+    class Config:
+        from_attributes = True
+
 
 class ReviewRequest(BaseModel):
-    project_id: int
-    document_text: str | None = None
+    project_id: int | None = None
     document_id: int | None = None
-    mode: str = 'supervisor'
-    discipline: str = 'general computer science / engineering'
+    document_text: str | None = None
+    mode: str = "supervisor"
+    discipline: str = "general"
+
 
 class ReviewOut(BaseModel):
     overall_score: float
     report: dict
+
 
 class DatasetCardRequest(BaseModel):
     name: str
     abstract: str
     files: list[str] = []
     license: str | None = None
-    domain: str = 'general research'
+    domain: str = "general"
+
 
 class DatasetCardOut(BaseModel):
     dataset_card: dict
     reproducibility_score: float
     issues: list[str]
 
+
 class GraphIngestRequest(BaseModel):
     title: str
     text: str
-    source_type: str = 'paper'
+    source_type: str = "paper"
+
 
 class GraphIngestOut(BaseModel):
     nodes: list[dict]
