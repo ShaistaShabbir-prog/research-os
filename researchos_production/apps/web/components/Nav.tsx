@@ -5,10 +5,11 @@ import { useState } from "react";
 import { BookOpen, Menu, X, ExternalLink, ChevronDown } from "lucide-react";
 
 const LINKS = [
-  { href: "/supervisor", label: "AI Supervisor", badge: "Live" },
-  { href: "/datasets",   label: "Dataset Hub",   badge: null },
-  { href: "/graph",      label: "Research Memory", badge: "Beta" },
-  { href: "/pricing",    label: "Pricing",        badge: null },
+  { href: "/supervisor",  label: "AI Supervisor",   badge: "Live" },
+  { href: "/datasets",    label: "Dataset Hub",      badge: null },
+  { href: "/graph",       label: "Research Memory",  badge: "Beta" },
+  { href: "/plagiarism",  label: "Originality Check",badge: "New" },
+  { href: "/pricing",     label: "Pricing",          badge: null },
 ];
 const ADMIN_LINK = { href: "/admin", label: "Admin", badge: null };
 
