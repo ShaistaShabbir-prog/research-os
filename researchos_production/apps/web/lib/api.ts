@@ -81,4 +81,9 @@ export const apiClient = {
   listProjects: () => request<any[]>("/api/projects"),
   createProject: (p: { title: string; project_type: string; description?: string }) =>
     request<any>("/api/projects", { method: "POST", body: JSON.stringify(p) }),
+  listReports: () => request<Array<{
+    id: number; file_name: string; stability_class: string;
+    chatter_probability: number; confidence: number; created_at: string;
+  }>>("/api/reports"),
+  getReport: (id: number) => request<{ id: number; stability_class: string; report_md: string; created_at: string }>(`/api/reports/${id}`),
 };
