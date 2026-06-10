@@ -1,3 +1,4 @@
+import { withAdminAuth } from "@/components/AdminGuard";
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -11,7 +12,7 @@ const NAV = [
   { id:"settings",  icon:"⚙️", label:"Settings" },
 ];
 
-export default function ResearchOSAdmin() {
+function ResearchOSAdmin() {
   const [tab, setTab]       = useState("overview");
   const [reports, setReports] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -266,3 +267,5 @@ export default function ResearchOSAdmin() {
     </div>
   );
 }
+
+export default withAdminAuth(ResearchOSAdmin);
