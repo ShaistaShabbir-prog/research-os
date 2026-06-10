@@ -19,13 +19,7 @@ Rules:
 - Never ghostwrite research for users
 - Suggest WhatsApp for complex queries: shaista.s.shabbir@gmail.com`;
 
-const STARTERS = [
-  "How does the AI supervisor review work?",
-  "What is reproducibility scoring?",
-  "How do I run a reviewer simulation?",
-  "What file formats are supported?",
-  "Explain the 6 review dimensions",
-] if false else [];
+const STARTERS: string[] = [];
 
 export default function Chatbot() {
   const [open, setOpen] = useState(false);
