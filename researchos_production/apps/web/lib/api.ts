@@ -29,15 +29,55 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   }
 }
 
+export interface ReviewReport {
+  mode: string;
+  discipline: string;
+  doc_type: string;
+  word_count: number;
+  overall_score: number;
+  decision: string;
+  scores: Array<{ name: string; value: number; rationale: string }>;
+  section_presence: Record<string, boolean>;
+  major_concerns: string[];
+  minor_concerns: string[];
+  supervisor_comments: string[];
+  defense_questions: string[];
+  next_actions: string[];
+}
+
+export interface ReviewResponse {
+  overall_score: number;
+  report: ReviewReport;
+}
+
 export const apiClient = {
   health: () => request<{ status: string }>("/api/health"),
   warmUp: warmUpAPI,
-  supervisorReview: (payload: { document_text?: string; document_id?: number; project_id?: number; mode?: string; discipline?: string }) =>
-    request<{ overall_score: number; report: Record<string, unknown> }>("/api/supervisor/review", { method: "POST", body: JSON.stringify(payload) }),
-  datasetCard: (payload: { name: string; abstract: string; files?: string[]; license?: string; domain?: string }) =>
-    request<{ dataset_card: Record<string, unknown>; reproducibility_score: number; issues: string[] }>("/api/datasets/card", { method: "POST", body: JSON.stringify(payload) }),
+
+  supervisorReview: (payload: {
+    document_text?: string;
+    document_id?: number;
+    project_id?: number;
+    mode?: string;
+    discipline?: string;
+  }) => request<ReviewResponse>("/api/supervisor/review", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  }),
+
+  datasetCard: (payload: {
+    name: string; abstract: string; files?: string[]; license?: string; domain?: string;
+  }) => request<{
+    dataset_card: Record<string, unknown>;
+    reproducibility_score: number;
+    issues: string[];
+  }>("/api/datasets/card", { method: "POST", body: JSON.stringify(payload) }),
+
   graphIngest: (payload: { title: string; text: string; source_type?: string }) =>
-    request<{ nodes: any[]; edges: any[] }>("/api/graph/ingest", { method: "POST", body: JSON.stringify(payload) }),
+    request<{ nodes: Array<{ label: string; name: string; properties: Record<string, unknown> }>; edges: Array<{ source: string; target: string; relation: string }> }>("/api/graph/ingest", {
+      method: "POST", body: JSON.stringify(payload),
+    }),
+
   listProjects: () => request<any[]>("/api/projects"),
   createProject: (p: { title: string; project_type: string; description?: string }) =>
     request<any>("/api/projects", { method: "POST", body: JSON.stringify(p) }),
