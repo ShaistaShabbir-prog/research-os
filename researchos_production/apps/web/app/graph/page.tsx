@@ -1,13 +1,14 @@
 "use client";
 import { useState } from "react";
-import { GitBranch, Loader2, AlertTriangle } from "lucide-react";
+import { Brain, Loader2, AlertTriangle } from "lucide-react";
 import { apiClient } from "@/lib/api";
 
 const LABEL_BADGE: Record<string, string> = {
-  Paper:"badge-indigo",Thesis:"badge-indigo",Method:"badge-purple",Dataset:"badge-green",Institution:"badge-amber",
+  Paper:"badge-indigo", Thesis:"badge-indigo", Method:"badge-purple",
+  Dataset:"badge-green", Institution:"badge-amber",
 };
 
-export default function GraphPage() {
+export default function ResearchMemoryPage() {
   const [title, setTitle] = useState("");
   const [text, setText] = useState("");
   const [sourceType, setSourceType] = useState("paper");
@@ -24,40 +25,72 @@ export default function GraphPage() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto pt-10 space-y-8">
-      <div><h1 className="text-4xl font-bold mb-2">Knowledge Graph</h1>
-        <p className="text-slate-400 text-sm">Extract methods, datasets, and institutions. Build your research memory graph.</p></div>
+    <div className="max-w-5xl mx-auto pt-10 space-y-8 px-4">
+      <div className="space-y-1">
+        <div className="flex items-center gap-3">
+          <Brain className="w-7 h-7 text-purple-400" />
+          <h1 className="text-4xl font-bold">Research Memory</h1>
+          <span className="badge badge-amber text-xs">Beta</span>
+        </div>
+        <p className="text-slate-400 text-sm max-w-xl">
+          Extract and remember methods, datasets, institutions, and results from your documents.
+          Build a defensible research memory that connects papers, datasets, and outcomes.
+        </p>
+      </div>
+
+      <div className="grid sm:grid-cols-3 gap-4">
+        {[
+          { icon: "🧠", title: "Remembers methods", desc: "CNN, LSTM, SVM, Transformer — extracted and linked" },
+          { icon: "📊", title: "Remembers datasets", desc: "Named datasets linked to papers and institutions" },
+          { icon: "🏛️", title: "Remembers institutions", desc: "University and lab affiliations across your documents" },
+        ].map(f => (
+          <div key={f.title} className="card-sm border border-purple-500/15 bg-purple-500/5 text-center space-y-2">
+            <div className="text-2xl">{f.icon}</div>
+            <p className="font-semibold text-sm text-purple-300">{f.title}</p>
+            <p className="text-xs text-slate-500">{f.desc}</p>
+          </div>
+        ))}
+      </div>
+
       <div className="grid lg:grid-cols-2 gap-8">
         <div className="card space-y-4">
-          <div className="space-y-1.5"><label className="label">Document title *</label>
-            <input value={title} onChange={e=>setTitle(e.target.value)} className="input" placeholder="e.g. Low-Cost Acoustic Monitoring for CNC Milling"/></div>
-          <div className="space-y-1.5"><label className="label">Source type</label>
+          <div className="space-y-1.5">
+            <label className="label">Document title *</label>
+            <input value={title} onChange={e=>setTitle(e.target.value)} className="input" placeholder="e.g. Low-Cost Acoustic Monitoring for CNC Milling"/>
+          </div>
+          <div className="space-y-1.5">
+            <label className="label">Source type</label>
             <select value={sourceType} onChange={e=>setSourceType(e.target.value)} className="input">
-              {["paper","thesis","expose","dataset"].map(t=><option key={t}>{t}</option>)}</select></div>
-          <div className="space-y-1.5"><label className="label">Document text *</label>
-            <textarea value={text} onChange={e=>setText(e.target.value)} rows={14}
-              className="input resize-y font-mono text-xs" placeholder="Paste your paper or thesis text here…"/></div>
+              {["paper","thesis","expose","dataset"].map(t=><option key={t}>{t}</option>)}
+            </select>
+          </div>
+          <div className="space-y-1.5">
+            <label className="label">Document text *</label>
+            <textarea value={text} onChange={e=>setText(e.target.value)} rows={12}
+              className="input resize-y font-mono text-xs" placeholder="Paste your paper or thesis text here…"/>
+          </div>
           {error && <div className="flex gap-3 bg-red-500/10 border border-red-500/20 rounded-xl p-4 text-sm text-red-300"><AlertTriangle className="w-4 h-4 mt-0.5 flex-shrink-0"/>{error}</div>}
           <button onClick={handleExtract} disabled={loading} className="btn w-full justify-center py-3 disabled:opacity-40">
-            {loading ? <><Loader2 className="w-4 h-4 animate-spin"/>Extracting…</> : <><GitBranch className="w-4 h-4"/>Extract graph</>}
+            {loading ? <><Loader2 className="w-4 h-4 animate-spin"/>Extracting…</> : <><Brain className="w-4 h-4"/>Extract to memory</>}
           </button>
         </div>
+
         <div>
           {!result && !loading && (
             <div className="card flex flex-col items-center justify-center text-center py-24 space-y-3 text-slate-600 h-full">
-              <GitBranch className="w-10 h-10 opacity-20"/><p className="text-sm">Nodes and edges appear here.</p>
+              <Brain className="w-10 h-10 opacity-20"/><p className="text-sm">Extracted entities appear here.</p>
             </div>
           )}
           {loading && <div className="card flex items-center justify-center py-24"><Loader2 className="w-8 h-8 animate-spin text-purple-400"/></div>}
           {result && (
             <div className="space-y-4">
               <div className="grid grid-cols-3 gap-3">
-                {[{l:"Nodes",v:result.nodes.length},{l:"Edges",v:result.edges.length},{l:"Methods",v:result.nodes.filter((n:any)=>n.label==="Method").length}].map(s=>(
+                {[{l:"Entities",v:result.nodes.length},{l:"Relations",v:result.edges.length},{l:"Methods",v:result.nodes.filter((n:any)=>n.label==="Method").length}].map(s=>(
                   <div key={s.l} className="card text-center"><div className="text-3xl font-bold text-purple-400">{s.v}</div><div className="text-xs text-slate-400 mt-1">{s.l}</div></div>
                 ))}
               </div>
               <div className="card">
-                <p className="section-title">Extracted nodes</p>
+                <p className="section-title">Memory entities</p>
                 <div className="flex flex-wrap gap-2">
                   {result.nodes.map((n:any,i:number)=>(
                     <span key={i} className={`badge ${LABEL_BADGE[n.label]||"badge-indigo"}`}>{n.label}: {n.name}</span>
