@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Nav } from "@/components/Nav";
+import Chatbot from "@/components/Chatbot";
 
 export const metadata: Metadata = {
   title: { default: "ResearchOS — Your AI Research Supervisor", template: "%s | ResearchOS" },
@@ -28,6 +29,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <main className="max-w-7xl mx-auto px-4 sm:px-6 pb-24">
           {children}
         </main>
+        <Chatbot />
         <footer className="border-t border-white/5 py-10 text-center">
           <p className="text-sm text-slate-500">ResearchOS — AI Research Supervisor</p>
           <p className="text-xs text-slate-700 mt-1.5">Built by researchers at TU Dortmund University · Lamarr Institute for ML & AI · University of Hamburg</p>
