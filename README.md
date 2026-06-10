@@ -15,6 +15,8 @@
 [![Live](https://img.shields.io/badge/🌐%20Live-research--os--phi.vercel.app-7c3aed?style=flat-square)](https://research-os-phi.vercel.app)
 [![API](https://img.shields.io/badge/⚡%20API-researchos--api--8zqh.onrender.com-059669?style=flat-square)](https://researchos-api-8zqh.onrender.com/api/health)
 [![Tests](https://img.shields.io/badge/Tests-9%20passing-22c55e?style=flat-square)](https://github.com/ShaistaShabbir-prog/research-os/actions)
+[![License](https://img.shields.io/badge/License-Proprietary-red?style=flat-square)](LICENSE)
+[![Copyright](https://img.shields.io/badge/Copyright-2026%20Shaista%20Shabbir-a855f7?style=flat-square)](LICENSE)
 [![Made by](https://img.shields.io/badge/Made%20by-Shaista%20Shabbir-a855f7?style=flat-square)](https://shaistashabbir-prog.github.io)
 
 </div>
