@@ -32,6 +32,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <p className="text-sm text-slate-500">ResearchOS — AI Research Supervisor</p>
           <p className="text-xs text-slate-700 mt-1.5">Built by researchers at TU Dortmund University · Lamarr Institute for ML & AI · University of Hamburg</p>
           <p className="text-xs text-slate-700 mt-1">Never ghostwrites. Reviews, audits, and helps researchers improve their own work ethically.</p>
+          <p className="text-xs text-slate-700 mt-2">© 2026 Shaista Shabbir. All Rights Reserved. ResearchOS is proprietary software. <a href="mailto:shaista.s.shabbir@gmail.com" className="hover:text-slate-500">Contact for licensing.</a></p>
         </footer>
       </body>
     </html>
