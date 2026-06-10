@@ -23,6 +23,7 @@ class ReviewRequest(BaseModel):
     document_text: str | None = None
     mode: str = "supervisor"
     discipline: str = "general"
+    venue: str = "general"
 
 
 class ReviewOut(BaseModel):
