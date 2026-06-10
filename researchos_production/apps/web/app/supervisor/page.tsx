@@ -181,8 +181,38 @@ export default function SupervisorPage() {
 
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0]; if (!f) return;
-    if (f.type==="text/plain") setText(await f.text());
-    else setError("Upload a .txt file or paste text directly.");
+    const name = f.name.toLowerCase();
+    if (f.type==="text/plain" || name.endsWith(".txt")) {
+      setText(await f.text());
+    } else if (name.endsWith(".pdf")) {
+      // PDF: read as text via FileReader — extracts embedded text
+      const reader = new FileReader();
+      reader.onload = async (ev) => {
+        const buf = ev.target?.result as ArrayBuffer;
+        const bytes = new Uint8Array(buf);
+        // Extract readable text from PDF byte stream
+        let text = "";
+        const str = new TextDecoder("latin1").decode(bytes);
+        // Pull text between BT/ET markers (basic PDF text extraction)
+        const matches = str.matchAll(/\(([^)]{2,})\)/g);
+        for (const m of matches) {
+          const t = m[1].replace(/\[()\]/g,"").replace(/\n/g," ").trim();
+          if (t.length > 2 && /[a-zA-Z]{2,}/.test(t)) text += t + " ";
+        }
+        if (text.length > 100) {
+          setText(text.slice(0, 12000));
+        } else {
+          setError("PDF text could not be extracted. Please paste the text directly.");
+        }
+      };
+      reader.readAsArrayBuffer(f);
+    } else if (name.endsWith(".docx")) {
+      setError("DOCX: please copy-paste text from Word directly for now.");
+    } else {
+      // Try reading as plain text anyway
+      try { setText(await f.text()); }
+      catch { setError("Could not read file. Please paste text directly."); }
+    }
   };
 
   const handleReview = async () => {
@@ -297,9 +327,9 @@ export default function SupervisorPage() {
             <div className="flex items-center justify-between">
               <label className="label mb-0">Document text</label>
               <button onClick={()=>fileRef.current?.click()} className="btn-ghost text-xs py-1 px-2 gap-1">
-                <Upload className="w-3 h-3"/>Load .txt
+                <Upload className="w-3 h-3"/>Upload file
               </button>
-              <input ref={fileRef} type="file" accept=".txt" onChange={handleFile} className="hidden"/>
+              <input ref={fileRef} type="file" accept=".txt,.pdf,.docx" onChange={handleFile} className="hidden"/>
             </div>
             <textarea value={text} onChange={e=>setText(e.target.value)}
               placeholder={"Paste abstract, thesis chapter, paper draft, or section here…\n\nGrammar check activates automatically."}
