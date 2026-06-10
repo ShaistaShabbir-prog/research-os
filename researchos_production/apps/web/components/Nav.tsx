@@ -10,6 +10,7 @@ const LINKS = [
   { href: "/graph",      label: "Research Memory", badge: "Beta" },
   { href: "/pricing",    label: "Pricing",        badge: null },
 ];
+const ADMIN_LINK = { href: "/admin", label: "Admin", badge: null };
 
 export function Nav() {
   const pathname = usePathname();
@@ -46,6 +47,7 @@ export function Nav() {
 
         <div className="hidden md:flex items-center gap-3">
           <Link href="/dashboard" className="btn-ghost text-sm">Dashboard</Link>
+          <Link href="/admin" className="btn-ghost text-sm text-slate-500">⚙️ Admin</Link>
           <a href={(process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000") + "/docs"}
             target="_blank" rel="noopener" className="btn-ghost text-xs gap-1">
             API <ExternalLink className="w-3 h-3" />
