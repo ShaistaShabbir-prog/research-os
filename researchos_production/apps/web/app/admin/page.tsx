@@ -1,5 +1,5 @@
-import { withAdminAuth } from "@/components/AdminGuard";
 "use client";
+import { withAdminAuth } from "@/components/AdminGuard";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { apiClient } from "@/lib/api";
