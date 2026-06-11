@@ -1,54 +1,26 @@
-PROPRIETARY SOFTWARE LICENSE — ALL RIGHTS RESERVED
-
-Copyright (c) 2026 Shaista Shabbir
-Research Associate · TU Dortmund University · Lamarr Institute for ML & AI
-
-All rights reserved. ResearchOS is proprietary software.
-
-──────────────────────────────────────────────────────────
-STRICTLY PROHIBITED WITHOUT WRITTEN PERMISSION
-──────────────────────────────────────────────────────────
-
-❌ Using this software, in whole or in part, for any purpose
-❌ Copying, reproducing, or downloading the source code
-❌ Modifying, adapting, or creating derivative works
-❌ Distributing, publishing, or sharing this software
-❌ Sublicensing or selling access to this software
-❌ Reverse engineering or decompiling the software
-❌ Using the brand name, logo, or visual identity
-❌ Building competing products based on this codebase
-
-──────────────────────────────────────────────────────────
-PERMITTED
-──────────────────────────────────────────────────────────
-
-✅ Viewing the repository for portfolio evaluation purposes
-✅ Academic citation with full attribution
-✅ Contacting the owner for licensing inquiries
-
-──────────────────────────────────────────────────────────
-INTELLECTUAL PROPERTY
-──────────────────────────────────────────────────────────
-
-All intellectual property in this repository — including but
-not limited to source code, algorithms, UI designs, data
-models, documentation, brand assets, and research content —
-is the exclusive property of Shaista Shabbir.
-
-──────────────────────────────────────────────────────────
-LICENSING INQUIRIES
-──────────────────────────────────────────────────────────
-
-For commercial licensing, academic collaboration, or
-partnership inquiries:
-
-  Email:    shaista.s.shabbir@gmail.com
-  Portfolio: https://shaistashabbir-prog.github.io
-  LinkedIn: https://www.linkedin.com/in/shaista-shabbir-a32a6b210
-
-──────────────────────────────────────────────────────────
-
-ANY UNAUTHORISED USE OF THIS SOFTWARE CONSTITUTES
-COPYRIGHT INFRINGEMENT AND MAY RESULT IN LEGAL ACTION.
-
 Copyright (c) 2026 Shaista Shabbir. All Rights Reserved.
+
+This software and associated documentation files (the "Software") are the
+exclusive intellectual property of Shaista Shabbir, Research Associate at
+TU Dortmund University and the Lamarr Institute for Machine Learning and AI.
+
+NO PERMISSION is granted to:
+- Copy, modify, merge, publish, distribute, sublicense, or sell copies
+  of the Software without explicit written permission from the author.
+- Use the Software or any part thereof in academic publications, research
+  papers, or derivative works without citing the original author.
+- Reproduce any portion of this Software for commercial purposes.
+
+RESEARCH USE:
+Academic researchers may read and study the code for non-commercial research
+purposes only. Any publication derived from or inspired by this work MUST cite:
+
+  Shabbir, Shaista. (2026). [Software title].
+  TU Dortmund University / Lamarr Institute for ML & AI.
+  GitHub: https://github.com/ShaistaShabbir-prog/
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED. THE AUTHOR ACCEPTS NO LIABILITY FOR ANY DAMAGES ARISING FROM USE
+OF THIS SOFTWARE.
+
+For licensing inquiries: contact via GitHub profile.
