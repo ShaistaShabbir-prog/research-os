@@ -168,3 +168,10 @@ ResearchOS **never ghostwrites** research. It reviews, critiques, and improves y
 
 Proprietary — All rights reserved © 2026 Shaista Shabbir.
 See [LICENSE](./LICENSE).
+
+## Chatbot configuration
+
+The website assistant works without an AI provider by matching product FAQs
+and visible content from the current page. To enhance those grounded answers
+with Claude, set `ANTHROPIC_API_KEY` and `ANTHROPIC_MODEL` in the web app's
+server environment. Never expose the key through a `NEXT_PUBLIC_` variable.

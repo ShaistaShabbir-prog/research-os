@@ -1,25 +1,8 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
+import { STARTERS } from "@/lib/chatbot-knowledge";
 
 interface Message { role: "user" | "assistant"; content: string; }
-
-const SYSTEM = `You are ResearchOS assistant — an expert in academic research quality, thesis writing, and paper review.
-
-You help researchers with:
-- Using the AI Supervisor review module (6 dimensions: Structure, Citations, Methodology, Novelty, Reproducibility, Writing)
-- Dataset Hub: dataset cards, reproducibility scoring
-- Research Memory: extracting methods, datasets, institutions from papers
-- Reviewer simulation (NeurIPS, IEEE, Nature, ACM, PLOS, Thesis)
-- Before/after comparison, review history, export reports
-- Grammar & academic writing check
-
-Rules:
-- Be concise, academic, and precise
-- Max 3-4 sentences unless detail requested
-- Never ghostwrite research for users
-- Suggest WhatsApp for complex queries: shaista.s.shabbir@gmail.com`;
-
-const STARTERS: string[] = [];
 
 export default function Chatbot() {
   const [open, setOpen] = useState(false);
@@ -43,18 +26,15 @@ export default function Chatbot() {
     setMessages(newMsgs);
     setLoading(true);
     try {
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
+      const pageContext = document.querySelector("main")?.textContent?.slice(0, 12000) || "";
+      const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 400,
-          system: SYSTEM,
-          messages: newMsgs.map(m => ({ role: m.role, content: m.content })),
-        }),
+        body: JSON.stringify({ message: msg, pageContext }),
       });
       const data = await res.json();
-      const reply = data.content?.[0]?.text || "Sorry, I couldn't respond. Please try again.";
+      const source = data.sources?.[0];
+      const reply = `${data.answer || "Sorry, I couldn't find an answer."}${source ? `\n\nSource: ${source.label}${source.href ? ` (${source.href})` : ""}` : ""}`;
       setMessages(prev => [...prev, { role: "assistant", content: reply }]);
       if (!open) setUnread(u => u + 1);
     } catch {
@@ -137,6 +117,7 @@ export default function Chatbot() {
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5"><path d="m22 2-7 20-4-9-9-4 20-7z"/></svg>
             </button>
           </div>
+          {messages.length === 1 && <div style={{padding:"0 12px 10px",display:"flex",gap:"6px",flexWrap:"wrap"}}>{STARTERS.map(s=><button key={s} onClick={()=>send(s)} style={{fontSize:"10px",padding:"5px 8px",borderRadius:"12px",border:"1px solid rgba(255,255,255,.1)",background:"rgba(255,255,255,.06)",color:"#cbd5e1",cursor:"pointer"}}>{s}</button>)}</div>}
           <p style={{fontSize:"10px",color:"rgba(255,255,255,.25)",textAlign:"center",padding:"0 12px 8px"}}>AI assistant · Not professional advice</p>
         </div>
       )}
