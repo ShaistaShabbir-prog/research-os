@@ -1,6 +1,6 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-import { STARTERS } from "@/lib/chatbot-knowledge";
+import { STARTERS, findLocalAnswer } from "@/lib/chatbot-knowledge";
 
 interface Message { role: "user" | "assistant"; content: string; }
 
@@ -27,18 +27,21 @@ export default function Chatbot() {
     setLoading(true);
     try {
       const pageContext = document.querySelector("main")?.textContent?.slice(0, 12000) || "";
-      const res = await fetch("/api/chat", {
+      const local = findLocalAnswer(msg, pageContext);
+      const res = await fetch("/chatbot-answer", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: msg, pageContext }),
       });
-      const data = await res.json();
+      const data = res.ok ? await res.json() : local;
       const source = data.sources?.[0];
-      const reply = `${data.answer || "Sorry, I couldn't find an answer."}${source ? `\n\nSource: ${source.label}${source.href ? ` (${source.href})` : ""}` : ""}`;
+      const reply = `${data.answer || local.answer}${source ? `\n\nSource: ${source.label}${source.href ? ` (${source.href})` : ""}` : ""}`;
       setMessages(prev => [...prev, { role: "assistant", content: reply }]);
       if (!open) setUnread(u => u + 1);
     } catch {
-      setMessages(prev => [...prev, { role: "assistant", content: "Connection issue. Please try again." }]);
+      const local = findLocalAnswer(msg, document.querySelector("main")?.textContent?.slice(0, 12000) || "");
+      const source = local.sources[0];
+      setMessages(prev => [...prev, { role: "assistant", content: `${local.answer}${source ? `\n\nSource: ${source.label}${source.href ? ` (${source.href})` : ""}` : ""}` }]);
     } finally { setLoading(false); }
   };
 
