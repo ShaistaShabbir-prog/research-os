@@ -9,7 +9,7 @@ Structured feedback · Reviewer simulation · Reproducibility scoring · Researc
 [![Next.js](https://img.shields.io/badge/Next.js_15-black?style=for-the-badge&logo=next.js)](https://nextjs.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![Python](https://img.shields.io/badge/Python_3.12-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
-[![License](https://img.shields.io/badge/License-Proprietary-red?style=for-the-badge)](./LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](./LICENSE)
 
 </div>
 
@@ -166,8 +166,7 @@ ResearchOS **never ghostwrites** research. It reviews, critiques, and improves y
 
 ## 📄 License
 
-Proprietary — All rights reserved © 2026 Shaista Shabbir.
-See [LICENSE](./LICENSE).
+MIT License - see [LICENSE](./LICENSE).
 
 ## Chatbot configuration
 
