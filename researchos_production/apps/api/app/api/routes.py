@@ -6,10 +6,12 @@ from app.schemas.api import (
     DatasetCardOut, DatasetCardRequest,
     GraphIngestOut, GraphIngestRequest,
     ProjectCreate, ProjectOut,
+    ReviewCopilotOut, ReviewCopilotRequest,
     ReviewOut, ReviewRequest,
 )
 from app.services.dataset_engine import create_dataset_card, reproducibility_check
 from app.services.graph_engine import extract_graph
+from app.services.review_copilot import run_review_copilot, validate_review_copilot_input
 from app.services.supervisor_engine import review_document
 from app.services.text_extract import extract_text
 
@@ -114,3 +116,20 @@ def dataset_card_endpoint(payload: DatasetCardRequest):
 def graph_ingest(payload: GraphIngestRequest):
     result = extract_graph(payload.title, payload.text, payload.source_type)
     return GraphIngestOut(nodes=result["nodes"], edges=result["edges"])
+
+
+@router.post("/review-copilot/analyze", response_model=ReviewCopilotOut)
+def review_copilot_analyze(payload: ReviewCopilotRequest):
+    try:
+        validate_review_copilot_input(payload.document_text)
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "code": "invalid_review_copilot_input",
+                "message": str(exc),
+                "human_verification_required": True,
+            },
+        ) from exc
+    reviews = [review.model_dump() for review in payload.reviews]
+    return run_review_copilot(payload.document_text, reviews)

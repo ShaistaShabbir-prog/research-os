@@ -45,6 +45,14 @@ ResearchOS is a **Research Quality Platform** that helps students, researchers, 
 - **Context-aware** — abstract gets abstract feedback, full paper gets full critique
 - **Review history** — saved to localStorage
 
+### 🧑‍⚖️ Review Copilot
+- **Paper intake:** parses title, abstract, sections, references, and figure/table captions from text, Markdown, or LaTeX-like source
+- **Reviewer workspace:** assists with structured summary, novelty notes, strengths, weaknesses, methods critique, limitations, ethics, reproducibility, and reviewer questions
+- **Citation and claim auditors:** flags sparse citation coverage, suspicious references, overclaims, unsupported causal language, and abstract/results mismatch for human checking
+- **Reproducibility auditor:** highlights code, dataset, preprocessing, hyperparameter, seed, environment, baseline, ablation, significance, and limitation gaps
+- **Meta-review copilot:** drafts agreement, disagreement, missing discussion points, review-quality issues, and author-facing clarification questions from reviewer reports
+- **Exports:** Markdown and JSON review analysis, citation/claim audit JSON, reproducibility checklist Markdown, meta-review Markdown, and GraphML knowledge graph
+
 ### 📁 Dataset Hub
 - Dataset card generation
 - Reproducibility scoring (0–100)
@@ -82,6 +90,7 @@ researchos_production/
 │   │   ├── app/
 │   │   │   ├── page.tsx          # Homepage — problem-centric positioning
 │   │   │   ├── supervisor/       # AI Supervisor review module
+│   │   │   ├── review-copilot/   # Review Copilot workspace
 │   │   │   ├── datasets/         # Dataset Hub
 │   │   │   ├── graph/            # Research Memory (knowledge graph)
 │   │   │   ├── plagiarism/       # Originality checker
@@ -97,6 +106,7 @@ researchos_production/
 │           ├── main.py           # FastAPI app
 │           ├── services/         # Business logic
 │           │   ├── supervisor.py # Review engine
+│           │   ├── review_copilot.py # Peer-review assistance engine
 │           │   ├── grammar.py    # Grammar & academic writing check
 │           │   └── dataset.py    # Dataset card generator
 │           └── models/           # Data models
@@ -126,6 +136,8 @@ cd research-os/researchos_production
 
 # Backend
 cd apps/api
+python -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
 uvicorn app.main:app --reload --port 8000
 
@@ -135,6 +147,54 @@ npm install
 echo "NEXT_PUBLIC_API_BASE_URL=http://localhost:8000" > .env.local
 echo "ANTHROPIC_API_KEY=sk-ant-..." >> .env.local
 npm run dev   # http://localhost:3000
+```
+
+Review Copilot is available at:
+
+- Frontend: `http://localhost:3000/review-copilot`
+- Backend endpoint: `POST http://localhost:8000/api/review-copilot/analyze`
+
+### Review Copilot API Example
+
+Request:
+
+```bash
+curl -X POST http://localhost:8000/api/review-copilot/analyze \
+  -H "Content-Type: application/json" \
+  -d '{
+    "document_text": "# Demo Paper\n\n## Abstract\nThis paper studies a synthetic review workflow.\n\n## Method\nWe compare baselines on a synthetic dataset.",
+    "reviews": [
+      {
+        "reviewer_id": "R1",
+        "summary": "Promising but needs clearer reproducibility details.",
+        "strengths": ["important problem"],
+        "weaknesses": ["missing seeds"],
+        "recommendation": "borderline"
+      }
+    ]
+  }'
+```
+
+Response excerpt:
+
+```json
+{
+  "paper": {
+    "title": "Demo Paper",
+    "abstract": "This paper studies a synthetic review workflow."
+  },
+  "reviewer_analysis": {
+    "paper_summary": "Demo Paper: This paper studies a synthetic review workflow.",
+    "human_verification_required": true
+  },
+  "exports": {
+    "review_analysis.md": "# Review Analysis...",
+    "review_analysis.json": "{...}"
+  },
+  "ethics": [
+    "The system assists, but does not replace human scientific judgment."
+  ]
+}
 ```
 
 ### Vercel Environment Variables
@@ -161,6 +221,20 @@ NEXT_PUBLIC_ADMIN_PASSWORD=your_secure_password
 ## ⚖️ Ethics
 
 ResearchOS **never ghostwrites** research. It reviews, critiques, and improves your own work. No AI-generated content for submission. No plagiarism bypass. Built by active researchers.
+
+Review Copilot assists, highlights, drafts, flags, and supports human judgment. It does not replace reviewers, supervisors, area chairs, editors, or scientific judgment. Do not submit AI-generated reviews without human verification. No confidential paper content should be sent to external APIs unless explicitly configured and authorized.
+
+## Dependency And Security Notes
+
+During local verification, `npm install` reported 4 npm audit findings: 2 low and 2 moderate. These were documented but not auto-fixed because forced dependency upgrades can introduce breaking changes.
+
+TODO: run a targeted dependency audit before release, apply safe non-breaking upgrades where available, and avoid `npm audit fix --force` unless the resulting dependency changes are tested.
+
+## Review Copilot Docs
+
+- [Review Copilot Design](./docs/review_copilot_design.md)
+- [Ethical Review Policy](./docs/ethical_review_policy.md)
+- [Review Copilot API](./docs/api_review_copilot.md)
 
 ---
 

@@ -1,0 +1,16 @@
+[
+  {
+    "reviewer_id": "R1",
+    "summary": "The paper addresses an important problem but needs clearer reproducibility details.",
+    "strengths": ["important problem", "clear motivation"],
+    "weaknesses": ["missing random seeds", "limited synthetic-only evaluation"],
+    "recommendation": "weak accept"
+  },
+  {
+    "reviewer_id": "R2",
+    "summary": "The system is useful as a checklist, but claims should be more carefully qualified.",
+    "strengths": ["important problem"],
+    "weaknesses": ["limited synthetic-only evaluation", "needs more baselines"],
+    "recommendation": "borderline"
+  }
+]
