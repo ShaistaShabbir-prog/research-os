@@ -485,9 +485,63 @@ export default function ReviewCopilotPage() {
     }
   };
 
+  const [fileLoading, setFileLoading] = useState(false);
+  const [fileError, setFileError] = useState("");
+
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) setText(await file.text());
+    if (!file) return;
+    setFileError("");
+    const MAX = 10 * 1024 * 1024; // 10 MB
+    if (file.size > MAX) { setFileError("File too large — max 10 MB."); return; }
+
+    const isPDF = file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
+
+    if (isPDF) {
+      setFileLoading(true);
+      try {
+        // Load pdf.js from CDN
+        if (!(window as any).pdfjsLib) {
+          await new Promise<void>((res, rej) => {
+            const s = document.createElement("script");
+            s.src = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
+            s.onload = () => res();
+            s.onerror = () => rej(new Error("Failed to load PDF.js"));
+            document.head.appendChild(s);
+          });
+          (window as any).pdfjsLib.GlobalWorkerOptions.workerSrc =
+            "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+        }
+        const pdfjsLib = (window as any).pdfjsLib;
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        let fullText = "";
+        for (let i = 1; i <= Math.min(pdf.numPages, 40); i++) {
+          const page = await pdf.getPage(i);
+          const tc = await page.getTextContent();
+          const pageText = tc.items.map((item: any) => item.str).join(" ");
+          fullText += pageText + "\n";
+        }
+        const extracted = fullText.trim();
+        if (extracted.length < 30) {
+          setFileError("PDF appears to be scanned/image-only — paste text manually.");
+        } else {
+          setText(extracted);
+        }
+      } catch (err: any) {
+        setFileError(`PDF error: ${err.message || "Could not read PDF."}`);
+      } finally {
+        setFileLoading(false);
+      }
+    } else {
+      // Plain text / Markdown / LaTeX
+      try {
+        const txt = await file.text();
+        setText(txt);
+      } catch {
+        setFileError("Could not read file.");
+      }
+    }
   };
 
   const handleCopy = async (key: string) => {
@@ -583,7 +637,7 @@ export default function ReviewCopilotPage() {
                   fontSize: 12, color: "rgba(255,255,255,0.6)",
                 }}>
                   <Upload style={{ width: 13 }} /> Upload
-                  <input type="file" className="hidden" accept=".txt,.md,.tex" onChange={handleFile} style={{ display: "none" }} />
+                  <input type="file" className="hidden" accept=".pdf,.txt,.md,.tex" onChange={handleFile} style={{ display: "none" }} />
                 </label>
               </div>
               <textarea
