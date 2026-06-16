@@ -15,6 +15,25 @@ Structured feedback · Reviewer simulation · Reproducibility scoring · Researc
 
 ---
 
+
+## 📸 Screenshots
+
+> Screenshots are captured from the live demo at [research-os-phi.vercel.app](https://research-os-phi.vercel.app).
+> See [Demo Walkthrough](./docs/demo_review_copilot.md) for the full annotated sequence.
+
+| # | Screenshot | Description |
+|---|-----------|-------------|
+| 01 | `docs/screenshots/01_review_copilot_landing.png` | Review Copilot landing — three input panels |
+| 02 | `docs/screenshots/02_paper_parsed.png` | Paper parsed — title, abstract, section map |
+| 03 | `docs/screenshots/03_reviews_loaded.png` | Three reviewer cards with recommendation badges |
+| 04 | `docs/screenshots/04_claim_flags.png` | Claim audit — novelty, deployment, reproducibility flags |
+| 05 | `docs/screenshots/05_reproducibility_checklist.png` | Reproducibility checklist (6/12 items) |
+| 06 | `docs/screenshots/06_citation_check.png` | Citation panel — 1 correct, 3 warnings |
+| 07 | `docs/screenshots/07_meta_synthesis.png` | Meta-review synthesis with suggested decision |
+| 08 | `docs/screenshots/08_export_panel.png` | Export panel — Markdown, JSON, CSV |
+| 09 | `docs/screenshots/09_author_revision_tasks.png` | Author view — prioritised revision task list |
+
+
 ## What is ResearchOS?
 
 ResearchOS is **not** an AI supervisor or thesis writer.
@@ -218,6 +237,41 @@ NEXT_PUBLIC_ADMIN_PASSWORD=your_secure_password
 
 ---
 
+## 🎯 Who is Review Copilot for?
+
+**Review Copilot** is the peer-review assistance module inside ResearchOS.
+It is designed for four groups of users across the research workflow:
+
+| User | Use case | Value |
+|---|---|---|
+| **Reviewers** | Surface reproducibility gaps, claim flags, and citation issues before writing | Write better-structured reviews in less time |
+| **Area Chairs** | Synthesise signals across R1/R2/R3 reports into a draft meta-review | Consistent, evidence-grounded meta-reviews |
+| **Supervisors** | Give structured pre-submission feedback to students | Repeatable, documented feedback with audit trail |
+| **Students & authors** | Self-assess a draft before submission | Catch reproducibility and claim issues early |
+
+> **Note:** Review Copilot is a *writing and analysis assistant*, not a decision system.
+> Editorial decisions remain entirely with human reviewers, area chairs, and editors.
+
+
+
+
+## ⚠️ Launch-Safe Disclaimer
+
+> **This tool supports human review and must not be used as an automated decision system.**
+
+Review Copilot:
+- **Assists** reviewers in identifying reproducibility gaps, unsupported claims, and citation issues.
+- **Does not** make accept/reject decisions, rank papers, or replace any step of peer review.
+- **Does not** ghostwrite reviews. All review text must be authored by a human reviewer.
+- **Should not** process confidential paper submissions through third-party API endpoints
+  unless you run your own self-hosted instance with your own API key.
+- **Requires** human verification of every flagged item before any editorial action is taken.
+
+Reproducibility scores, claim flags, and meta-review suggestions are starting points —
+not authoritative audits. Treat all outputs as a structured checklist, not a verdict.
+
+For the full policy, see [Ethical Review Policy](./docs/ethical_review_policy.md).
+
 ## ⚖️ Ethics
 
 ResearchOS **never ghostwrites** research. It reviews, critiques, and improves your own work. No AI-generated content for submission. No plagiarism bypass. Built by active researchers.
@@ -232,6 +286,7 @@ TODO: run a targeted dependency audit before release, apply safe non-breaking up
 
 ## Review Copilot Docs
 
+- [**Demo Walkthrough**](./docs/demo_review_copilot.md) ← start here
 - [Review Copilot Design](./docs/review_copilot_design.md)
 - [Ethical Review Policy](./docs/ethical_review_policy.md)
 - [Review Copilot API](./docs/api_review_copilot.md)
