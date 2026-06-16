@@ -6,6 +6,7 @@ import { BookOpen, Menu, X, ExternalLink, ChevronDown } from "lucide-react";
 
 const LINKS = [
   { href: "/supervisor",  label: "AI Supervisor",   badge: "Live" },
+  { href: "/review-copilot", label: "Review Copilot", badge: "New" },
   { href: "/datasets",    label: "Dataset Hub",      badge: null },
   { href: "/graph",       label: "Research Memory",  badge: "Beta" },
   { href: "/plagiarism",  label: "Originality Check",badge: "New" },

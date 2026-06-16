@@ -17,7 +17,11 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
     });
     if (!res.ok) {
       const err = await res.json().catch(() => ({ detail: `HTTP ${res.status}` }));
-      throw new Error(err.detail || `Request failed: ${res.status}`);
+      const detail = err.detail;
+      const message = typeof detail === "string"
+        ? detail
+        : detail?.message || err.message || `Request failed: ${res.status}`;
+      throw new Error(message);
     }
     return res.json() as Promise<T>;
   } catch (e: any) {
@@ -50,6 +54,37 @@ export interface ReviewResponse {
   report: ReviewReport;
 }
 
+export interface ReviewCopilotFinding {
+  category: string;
+  title: string;
+  description: string;
+  severity: string;
+  priority: string;
+  evidence_span: { text: string; start_char?: number | null; end_char?: number | null };
+  section_reference: string;
+  suggested_action: string;
+  confidence: number;
+  human_verification_required: boolean;
+}
+
+export interface ReviewCopilotResponse {
+  paper: {
+    title: string;
+    abstract: string;
+    sections: Array<{ title: string; text: string; level: number; start_char?: number; end_char?: number }>;
+    references: Array<Record<string, unknown>>;
+    figures_tables: string[];
+  };
+  reviewer_analysis: Record<string, any>;
+  citation_audit: { findings: ReviewCopilotFinding[] };
+  claim_audit: { findings: ReviewCopilotFinding[] };
+  reproducibility_audit: Record<string, any> & { findings: ReviewCopilotFinding[] };
+  meta_review: Record<string, any>;
+  knowledge_graph: { nodes: Array<Record<string, any>>; edges: Array<Record<string, any>> };
+  ethics: string[];
+  exports: Record<string, string>;
+}
+
 export const apiClient = {
   health: () => request<{ status: string }>("/api/health"),
   warmUp: warmUpAPI,
@@ -77,6 +112,20 @@ export const apiClient = {
     request<{ nodes: Array<{ label: string; name: string; properties: Record<string, unknown> }>; edges: Array<{ source: string; target: string; relation: string }> }>("/api/graph/ingest", {
       method: "POST", body: JSON.stringify(payload),
     }),
+
+  reviewCopilot: (payload: {
+    document_text: string;
+    reviews?: Array<{
+      reviewer_id: string;
+      summary: string;
+      strengths?: string[];
+      weaknesses?: string[];
+      recommendation?: string;
+    }>;
+  }) => request<ReviewCopilotResponse>("/api/review-copilot/analyze", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  }),
 
   listProjects: () => request<any[]>("/api/projects"),
   createProject: (p: { title: string; project_type: string; description?: string }) =>
