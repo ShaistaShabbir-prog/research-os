@@ -79,3 +79,69 @@ class ReviewCopilotOut(BaseModel):
     knowledge_graph: dict
     ethics: list[str]
     exports: dict[str, str]
+
+
+# ── Phase 2: Claim Verification Engine ────────────────────────────────────
+
+class ClaimVerificationRequest(BaseModel):
+    document_text: str
+
+
+class ClaimVerificationOut(BaseModel):
+    claim_count: int
+    supported_count: int
+    unsupported_count: int
+    support_rate: float
+    claims: list[dict]
+    unsupported_claims: list[dict]
+    ethics: list[str]
+    human_verification_required: bool
+
+
+# ── Phase 3: Reviewer Fatigue Assistant ───────────────────────────────────
+
+class ReviewerFatigueReviewInput(BaseModel):
+    reviewer_id: str
+    summary: str
+    strengths: list[str] = []
+    weaknesses: list[str] = []
+    recommendation: str | None = None
+
+
+class ReviewerFatigueRequest(BaseModel):
+    document_text: str = ""
+    reviews: list[ReviewerFatigueReviewInput]
+
+
+class ReviewerFatigueOut(BaseModel):
+    reviewer_summaries: list[dict]
+    disagreement_matrix: dict
+    ac_briefing: dict
+    meta_review_draft: str
+    exports: dict[str, str]
+    ethics: list[str]
+    human_verification_required: bool
+
+
+# ── Phase 4: Research Memory ───────────────────────────────────────────────
+
+class ResearchMemoryPaperInput(BaseModel):
+    id: str | None = None
+    title: str | None = None
+    text: str
+
+
+class ResearchMemoryRequest(BaseModel):
+    papers: list[ResearchMemoryPaperInput]
+
+
+class ResearchMemoryOut(BaseModel):
+    paper_count: int
+    papers: list[dict]
+    summary: list[dict]
+    novelty_overlap: dict
+    citation_overlap: dict
+    contribution_overlap: dict
+    exports: dict[str, str]
+    ethics: list[str]
+    human_verification_required: bool
