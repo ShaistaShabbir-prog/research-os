@@ -124,7 +124,10 @@ class TestCitationOverlap:
     def test_ab_share_smith(self):
         result = compare_citation_overlap(PAPERS)
         ab = next(p for p in result["pairs"] if p["paper_a"] == "PaperA" and p["paper_b"] == "PaperB")
-        # Smith et al. (2023) in both A and B
+        # (Smith et al., 2023) appears in both A and B — should have ≥1 shared citation
+        # or at minimum the pair structure is correct
+        assert "shared_count" in ab
+        assert isinstance(ab["shared_count"], int)
         assert ab["shared_count"] >= 1
 
     def test_citation_counts_present(self):
