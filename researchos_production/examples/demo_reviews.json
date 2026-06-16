@@ -1,16 +1,102 @@
 [
   {
     "reviewer_id": "R1",
-    "summary": "The paper addresses an important problem but needs clearer reproducibility details.",
-    "strengths": ["important problem", "clear motivation"],
-    "weaknesses": ["missing random seeds", "limited synthetic-only evaluation"],
-    "recommendation": "weak accept"
+    "role": "Senior Reviewer",
+    "expertise": "Manufacturing intelligence, CNC machining, signal processing",
+    "confidence": "high",
+    "summary": "This paper proposes a lightweight LightGBM pipeline for chatter detection with SHAP explainability. The reproducibility story is strong — fixed seeds, released dataset, full hyperparameter disclosure. The F1 score (91.4%) sits below two baselines (ResNet, Transformer) but the latency advantage (48 ms vs 380–420 ms) is compelling for embedded deployment. The main weaknesses are dataset scope (single machine, two tool geometries) and the absence of statistical significance tests.",
+    "strengths": [
+      "Excellent reproducibility: random seed 42 documented, 5-fold CV reported with std, dataset DOI provided",
+      "Compelling latency argument (48 ms) directly addresses the embedded deployment gap stated in the introduction",
+      "SHAP explanations are a genuine contribution for process-engineer acceptance",
+      "Clean ablation study isolating the contribution of temporal features",
+      "Inter-rater agreement (κ = 0.91) adds credibility to the labelling protocol"
+    ],
+    "weaknesses": [
+      "Dataset limited to single machining centre (DMG MORI DMU 50) — generalisation claims are too broad",
+      "No statistical significance test (e.g. McNemar or Wilcoxon) comparing proposed method against SVM baseline",
+      "Related work section does not cite recent 2025 literature on self-supervised AE representation learning",
+      "Table 1 latency figures for baselines are not measured under identical hardware conditions — source of comparison is unclear",
+      "Wet vs dry cutting conditions are mentioned in §3 but not broken out as an experimental variable"
+    ],
+    "questions_for_authors": [
+      "Can you report per-condition breakdowns (spindle speed × feed rate) for F1?",
+      "What hardware was used to measure latency for baselines — same embedded device or paper-reported figures?",
+      "How does performance degrade under ambient noise variation across shifts?"
+    ],
+    "recommendation": "weak accept",
+    "confidence_score": 4,
+    "missing_reproducibility_items": [
+      "No requirements.txt or conda environment file mentioned",
+      "No random seed for train/val/test split procedure stated separately from model seed"
+    ],
+    "ethical_concerns": "None identified. Dataset is from controlled lab environment. No human subjects involved."
   },
   {
     "reviewer_id": "R2",
-    "summary": "The system is useful as a checklist, but claims should be more carefully qualified.",
-    "strengths": ["important problem"],
-    "weaknesses": ["limited synthetic-only evaluation", "needs more baselines"],
-    "recommendation": "borderline"
+    "role": "Area Chair assigned reviewer",
+    "expertise": "Explainable AI, time-series classification, industrial ML",
+    "confidence": "medium-high",
+    "summary": "A solid engineering contribution with above-average reproducibility. The comparison against five baselines is thorough. However, the paper overstates novelty — SHAP on LightGBM for industrial signals has been done (see Ribeiro et al. 2016, and industrial adaptations in 2022–2023). The key claim 'we are the first...' in the abstract is not supported by the cited literature. The dataset contribution is the strongest part of the paper.",
+    "strengths": [
+      "Five-baseline comparison is comprehensive and exceeds venue norms",
+      "Dataset release with full provenance is the most important contribution",
+      "Writing is clear and methodology section is well-structured",
+      "Limitation section is refreshingly honest about single-machine generalisation",
+      "Balanced class weight handling is noted and appropriate"
+    ],
+    "weaknesses": [
+      "Abstract claim 'Unlike prior deep-learning approaches...' is too broad — several prior works run lightweight models on embedded hardware",
+      "SHAP explanations are not compared to domain-expert feature importance rankings — are SHAP results actionable for engineers?",
+      "No discussion of concept drift — AE signals change as tools wear, invalidating a static model",
+      "Figure references (Figure 1, Table 1) in text do not match figure numbering in the actual tables provided",
+      "Kurtosis and RMS features are well-known in the AE community; the novelty of the feature set is overstated"
+    ],
+    "questions_for_authors": [
+      "What is the model's performance after 50, 100, 200 milling cycles of tool wear?",
+      "Have the SHAP explanations been validated with process engineers in a user study?",
+      "How are borderline predictions handled in the deployed system?"
+    ],
+    "recommendation": "borderline",
+    "confidence_score": 3,
+    "missing_reproducibility_items": [
+      "LightGBM version not pinned in requirements",
+      "SHAP version not specified",
+      "Training time and hardware spec not reported"
+    ],
+    "ethical_concerns": "The paper does not discuss potential harms if deployed chatter-detection system produces false negatives, leading to tool damage or safety incidents."
+  },
+  {
+    "reviewer_id": "R3",
+    "role": "Reviewer",
+    "expertise": "Embedded systems, real-time manufacturing, sensor fusion",
+    "confidence": "medium",
+    "summary": "From an embedded systems perspective, the 48 ms latency claim is the headline result. The paper correctly identifies the deployment gap. However, 48 ms is measured on unspecified hardware, and the claim that this 'runs on shop-floor PLCs' is not validated. The feature extraction pipeline at 500 kHz requires significant memory bandwidth that many PLCs cannot sustain. The contribution is good but the embedded deployment claim needs substantial clarification.",
+    "strengths": [
+      "Real-time latency focus is differentiated from the academic literature",
+      "AE at 500 kHz is appropriate for chatter frequency range (2–20 kHz)",
+      "Feature computation pipeline (18 features from 50 ms frames) is lightweight and implementable",
+      "Dataset conditions (6 speeds × 4 feeds) cover a realistic operating envelope"
+    ],
+    "weaknesses": [
+      "Hardware spec for 48 ms latency measurement is missing — laptop, Raspberry Pi, or actual PLC?",
+      "500 kHz continuous acquisition requires ~1 MB/s per channel; PLC memory bandwidth is not discussed",
+      "No comparison of power consumption — critical for embedded deployment",
+      "The paper does not address fail-safe behaviour: what happens when the AE sensor disconnects?",
+      "Edge deployment section (claimed in introduction) is absent from experiments"
+    ],
+    "questions_for_authors": [
+      "What specific hardware did you use for the 48 ms latency measurement?",
+      "Did you prototype on actual shop-floor hardware, or is this a simulation?",
+      "What is the memory footprint of the trained LightGBM model?"
+    ],
+    "recommendation": "weak reject",
+    "confidence_score": 3,
+    "missing_reproducibility_items": [
+      "No hardware spec for inference benchmark",
+      "No model export format specified (ONNX, PMML, or pickle?)",
+      "No discussion of sensor calibration procedure"
+    ],
+    "ethical_concerns": "Safety-critical deployment without validated fail-safe behaviour is a concern. A missed chatter event could cause spindle damage or operator injury. Recommend authors add a safety disclaimer and discussion of fail-safe design."
   }
 ]
