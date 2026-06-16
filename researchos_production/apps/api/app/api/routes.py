@@ -3,15 +3,21 @@ from sqlalchemy.orm import Session
 from app.core.db import get_db
 from app.models.entities import Document, Project, Review
 from app.schemas.api import (
+    ClaimVerificationOut, ClaimVerificationRequest,
     DatasetCardOut, DatasetCardRequest,
     GraphIngestOut, GraphIngestRequest,
     ProjectCreate, ProjectOut,
+    ResearchMemoryOut, ResearchMemoryRequest,
     ReviewCopilotOut, ReviewCopilotRequest,
+    ReviewerFatigueOut, ReviewerFatigueRequest,
     ReviewOut, ReviewRequest,
 )
+from app.services.claim_verification import run_claim_verification
 from app.services.dataset_engine import create_dataset_card, reproducibility_check
 from app.services.graph_engine import extract_graph
+from app.services.research_memory import run_research_memory
 from app.services.review_copilot import run_review_copilot, validate_review_copilot_input
+from app.services.reviewer_fatigue import run_reviewer_fatigue
 from app.services.supervisor_engine import review_document
 from app.services.text_extract import extract_text
 
@@ -133,3 +139,40 @@ def review_copilot_analyze(payload: ReviewCopilotRequest):
         ) from exc
     reviews = [review.model_dump() for review in payload.reviews]
     return run_review_copilot(payload.document_text, reviews)
+
+
+# ── Phase 2: Claim Verification Engine ────────────────────────────────────
+
+@router.post("/claim-verification/analyze", response_model=ClaimVerificationOut)
+def claim_verification_analyze(payload: ClaimVerificationRequest):
+    """Extract and verify claims. Returns claim list, evidence, support scores."""
+    try:
+        if not payload.document_text or len(payload.document_text.strip()) < 30:
+            raise ValueError("document_text must be at least 30 characters.")
+        return run_claim_verification(payload.document_text)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+# ── Phase 3: Reviewer Fatigue Assistant ───────────────────────────────────
+
+@router.post("/reviewer-fatigue/analyze", response_model=ReviewerFatigueOut)
+def reviewer_fatigue_analyze(payload: ReviewerFatigueRequest):
+    """Summarise reviews, disagreement matrix, AC briefing, meta-review draft."""
+    try:
+        reviews = [r.model_dump() for r in payload.reviews]
+        return run_reviewer_fatigue(payload.document_text, reviews)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+# ── Phase 4: Research Memory ───────────────────────────────────────────────
+
+@router.post("/research-memory/compare", response_model=ResearchMemoryOut)
+def research_memory_compare(payload: ResearchMemoryRequest):
+    """Compare 2–10 papers: novelty, citation, contribution overlap."""
+    try:
+        papers = [p.model_dump() for p in payload.papers]
+        return run_research_memory(papers)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
