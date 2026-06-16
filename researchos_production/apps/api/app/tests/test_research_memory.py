@@ -11,49 +11,36 @@ from app.services.research_memory import (
 PAPER_A = """# Acoustic Chatter Detection with LightGBM
 
 ## Abstract
-We propose a lightweight LightGBM pipeline for chatter detection.
-We are the first to combine SHAP explanations with embedded deployment.
-Our method achieves 91.4% F1.
-
+We propose a lightweight LightGBM pipeline for chatter detection. We are the first to combine SHAP explanations
+with embedded deployment at 48ms latency [1]. Prior work [2, 3] lacks reproducibility.
 ## Method
-LightGBM with SHAP explanations. Dataset collected from DMG MORI machine.
-
+LightGBM with SHAP. Dataset from DMG MORI machine. Random seed 42.
 ## References
-1. Smith et al. (2023)
-2. Jones (2022)
-3. Brown (2021)
-"""
+1. (Smith et al., 2023)
+2. (Jones, 2022)
+3. (Brown, 2021)"""
 
 PAPER_B = """# Deep Chatter Detection with ResNet
-
 ## Abstract
-This paper presents ResNet-34 for chatter detection achieving 94% accuracy.
-Our contribution is a large-scale CNC dataset with 10,000 labelled cycles.
-
+This paper presents ResNet-34 for chatter detection achieving 94% accuracy [1].
+Our contribution is a large-scale CNC dataset. Prior work [2] is limited.
 ## Method
-ResNet-34 trained on acoustic emission. GPU inference.
-
+ResNet-34 on GPU. 420ms inference.
 ## References
-1. Smith et al. (2023)
-2. Chen (2024)
-4. Lee (2020)
-"""
+1. (Smith et al., 2023)
+2. (Chen, 2024)
+4. (Lee, 2020)"""
 
 PAPER_C = """# Transformer-Based Machining Stability
-
 ## Abstract
-We introduce a transformer model for machining stability prediction.
-This work contributes a multi-modal sensor fusion framework.
-Our system achieves 93% F1 across five machine types.
-
+We introduce a transformer model for machining stability prediction [2].
+This work contributes multi-modal sensor fusion combining acoustic and vibration signals.
 ## Method
-Transformer with attention. Combines acoustic and vibration signals.
-
+Transformer with attention.
 ## References
-2. Chen (2024)
-5. Wang (2021)
-6. Kim (2022)
-"""
+2. (Chen, 2024)
+5. (Wang, 2021)
+6. (Kim, 2022)"""
 
 PAPERS = [
     {"id": "PaperA", "text": PAPER_A},
