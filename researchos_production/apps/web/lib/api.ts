@@ -127,6 +127,36 @@ export const apiClient = {
     body: JSON.stringify(payload),
   }),
 
+
+  claimVerification: (payload: { document_text: string }) =>
+    request<{
+      claim_count: number; supported_count: number; unsupported_count: number;
+      support_rate: number; claims: Array<Record<string, any>>;
+      unsupported_claims: Array<Record<string, any>>;
+      ethics: string[]; human_verification_required: boolean;
+    }>("/api/claim-verification/analyze", { method: "POST", body: JSON.stringify(payload) }),
+
+  reviewerFatigue: (payload: { document_text?: string; reviews: Array<{ reviewer_id: string; summary: string; strengths?: string[]; weaknesses?: string[]; recommendation?: string }> }) =>
+    request<{
+      reviewer_summaries: Array<Record<string, any>>;
+      disagreement_matrix: Record<string, any>;
+      ac_briefing: Record<string, any>;
+      meta_review_draft: string;
+      exports: Record<string, string>;
+      ethics: string[]; human_verification_required: boolean;
+    }>("/api/reviewer-fatigue/analyze", { method: "POST", body: JSON.stringify(payload) }),
+
+  researchMemory: (payload: { papers: Array<{ id?: string; title?: string; text: string }> }) =>
+    request<{
+      paper_count: number; papers: Array<Record<string, any>>;
+      summary: Array<Record<string, any>>;
+      novelty_overlap: Record<string, any>;
+      citation_overlap: Record<string, any>;
+      contribution_overlap: Record<string, any>;
+      exports: Record<string, string>;
+      ethics: string[]; human_verification_required: boolean;
+    }>("/api/research-memory/compare", { method: "POST", body: JSON.stringify(payload) }),
+
   listProjects: () => request<any[]>("/api/projects"),
   createProject: (p: { title: string; project_type: string; description?: string }) =>
     request<any>("/api/projects", { method: "POST", body: JSON.stringify(p) }),
