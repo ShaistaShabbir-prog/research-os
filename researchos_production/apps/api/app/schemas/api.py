@@ -145,3 +145,30 @@ class ResearchMemoryOut(BaseModel):
     exports: dict[str, str]
     ethics: list[str]
     human_verification_required: bool
+# ── Issue #10: User Auth ──────────────────────────────────────────────────
+
+class UserRegisterRequest(BaseModel):
+    email: str
+    password: str
+    full_name: str | None = None
+
+
+class UserLoginRequest(BaseModel):
+    email: str
+    password: str
+
+
+class UserOut(BaseModel):
+    id: int
+    email: str
+    full_name: str | None = None
+    plan: str
+    created_at: str | None = None
+    token: str | None = None
+    token_type: str | None = None
+    expires_in: int | None = None
+
+
+class UserUpdateRequest(BaseModel):
+    full_name: str | None = None
+    plan: str | None = None
