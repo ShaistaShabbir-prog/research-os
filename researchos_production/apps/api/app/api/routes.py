@@ -12,6 +12,7 @@ from app.schemas.api import (
     ReviewerFatigueOut, ReviewerFatigueRequest,
     ReviewOut, ReviewRequest,
 )
+from app.services.ai_review_copilot import run_ai_review_copilot, estimate_cost
 from app.services.claim_verification import run_claim_verification
 from app.services.dataset_engine import create_dataset_card, reproducibility_check
 from app.services.graph_engine import extract_graph
@@ -176,3 +177,25 @@ def research_memory_compare(payload: ResearchMemoryRequest):
         return run_research_memory(papers)
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+# ── Phase 5: AI-Powered Review Copilot ───────────────────────────────────
+
+@router.post("/ai-review-copilot/analyze")
+def ai_review_copilot_analyze(payload: ReviewCopilotRequest):
+    """
+    AI-powered Review Copilot using Claude.
+    Falls back to heuristic analysis if API key is unavailable.
+    Returns ai_powered=true/false so frontend can show mode clearly.
+    """
+    try:
+        validate_review_copilot_input(payload.document_text)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    reviews = [r.model_dump() for r in payload.reviews]
+    return run_ai_review_copilot(payload.document_text, reviews)
+
+
+@router.get("/ai-review-copilot/cost-estimate")
+def ai_cost_estimate(paper_chars: int = 5000, review_count: int = 3):
+    """Return a cost estimate before running the AI analysis."""
+    return estimate_cost(paper_chars, review_count)

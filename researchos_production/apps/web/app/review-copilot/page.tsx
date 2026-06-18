@@ -470,13 +470,24 @@ export default function ReviewCopilotPage() {
       ]
     : [];
 
+  const [aiMode, setAiMode] = useState(false);
+  const [aiCost, setAiCost] = useState<{estimated_cost_usd:number;model:string}|null>(null);
+
   const handleAnalyze = async () => {
     if (!text.trim()) { setError("Please paste paper text or LaTeX source."); return; }
     if (text.length > MAX_INPUT_CHARS) { setError("Input too long."); return; }
     setLoading(true); setError("");
     try {
-      const response = await apiClient.reviewCopilot({ document_text: text, reviews: DEMO_REVIEWS });
+      const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+      const endpoint = aiMode ? "/api/ai-review-copilot/analyze" : "/api/review-copilot/analyze";
+      const r = await fetch(`${API_BASE}${endpoint}`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ document_text: text, reviews: DEMO_REVIEWS }),
+      });
+      if (!r.ok) { const e = await r.json(); throw new Error(e.detail || "API error"); }
+      const response = await r.json();
       setResult(response);
+      if (response.cost_estimate) setAiCost(response.cost_estimate);
       setActiveTab("dashboard");
     } catch (err: any) {
       setError(err.message || "Review Copilot failed.");
@@ -667,11 +678,25 @@ export default function ReviewCopilotPage() {
                     Load demo
                   </button>
                   <button
+                    onClick={() => setAiMode(m => !m)}
+                    style={{
+                      padding: "8px 14px", borderRadius: 8,
+                      border: `1px solid ${aiMode ? "rgba(16,185,129,0.4)" : "rgba(255,255,255,0.1)"}`,
+                      background: aiMode ? "rgba(16,185,129,0.1)" : "transparent",
+                      color: aiMode ? "#4ade80" : "rgba(255,255,255,0.5)",
+                      fontSize: 12, fontWeight: 700, cursor: "pointer",
+                      display: "flex", alignItems: "center", gap: 5,
+                    }}
+                    title={aiMode ? "AI mode ON — uses Claude API" : "Heuristic mode — no API cost"}
+                  >
+                    {aiMode ? "✦ AI mode ON" : "◇ Heuristic"}
+                  </button>
+                  <button
                     onClick={handleAnalyze}
                     disabled={loading}
                     style={{
                       padding: "8px 20px", borderRadius: 8, border: "none",
-                      background: loading ? "#4c1d95" : "#7c3aed",
+                      background: loading ? "#4c1d95" : aiMode ? "#059669" : "#7c3aed",
                       color: "#fff", fontSize: 13, fontWeight: 700,
                       cursor: loading ? "not-allowed" : "pointer",
                       display: "flex", alignItems: "center", gap: 7,
@@ -679,7 +704,9 @@ export default function ReviewCopilotPage() {
                   >
                     {loading
                       ? <><Loader2 style={{ width: 14, animation: "spin 1s linear infinite" }} /> Analyzing…</>
-                      : <><Search style={{ width: 14 }} /> Analyze paper</>
+                      : aiMode
+                        ? <><Search style={{ width: 14 }} /> Analyze with Claude</>
+                        : <><Search style={{ width: 14 }} /> Analyze paper</>
                     }
                   </button>
                 </div>
