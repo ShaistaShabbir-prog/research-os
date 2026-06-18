@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from app.core.db import get_db
 from app.models.entities import Document, Project, Review
 from app.schemas.api import (
+    UserRegisterRequest, UserLoginRequest, UserOut, UserUpdateRequest,
     ClaimVerificationOut, ClaimVerificationRequest,
     DatasetCardOut, DatasetCardRequest,
     GraphIngestOut, GraphIngestRequest,
@@ -11,6 +12,9 @@ from app.schemas.api import (
     ReviewCopilotOut, ReviewCopilotRequest,
     ReviewerFatigueOut, ReviewerFatigueRequest,
     ReviewOut, ReviewRequest,
+)
+from app.services.auth_service import (
+    register_user, login_user, get_current_user, update_profile
 )
 from app.services.badge_service import (
     register_badge, get_badge, list_badges,
@@ -280,3 +284,47 @@ def score_svg(score: int, label: str = "Reproducibility"):
 def badges_list():
     """Public registry — list all registered paper badges."""
     return {"badges": list_badges(), "count": len(list_badges())}
+
+# ── Issue #10: User Auth ──────────────────────────────────────────────────
+
+@router.post("/auth/register", response_model=UserOut)
+def auth_register(payload: UserRegisterRequest, db: Session = Depends(get_db)):
+    """Register a new user. Returns JWT token."""
+    try:
+        return register_user(db, payload.email, payload.password, payload.full_name or "")
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+@router.post("/auth/login", response_model=UserOut)
+def auth_login(payload: UserLoginRequest, db: Session = Depends(get_db)):
+    """Login with email + password. Returns JWT token."""
+    try:
+        return login_user(db, payload.email, payload.password)
+    except ValueError as exc:
+        raise HTTPException(status_code=401, detail=str(exc)) from exc
+
+
+@router.get("/auth/me", response_model=UserOut)
+def auth_me(authorization: str = "", db: Session = Depends(get_db)):
+    """Return current user from Bearer token."""
+    token = authorization.replace("Bearer ", "").strip()
+    user = get_current_user(db, token) if token else None
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid or expired token.")
+    from app.services.auth_service import _user_out
+    return _user_out(user)
+
+
+@router.patch("/auth/profile", response_model=UserOut)
+def auth_update_profile(
+    payload: UserUpdateRequest,
+    authorization: str = "",
+    db: Session = Depends(get_db),
+):
+    """Update user profile (name, plan)."""
+    token = authorization.replace("Bearer ", "").strip()
+    user  = get_current_user(db, token) if token else None
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required.")
+    return update_profile(db, user, payload.full_name, payload.plan)
