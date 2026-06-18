@@ -20,7 +20,7 @@ from app.services.research_memory import run_research_memory
 from app.services.review_copilot import run_review_copilot, validate_review_copilot_input
 from app.services.reviewer_fatigue import run_reviewer_fatigue
 from app.services.supervisor_engine import review_document
-from app.services.text_extract import extract_text
+from app.services.text_extract import extract_text, extract_structured
 
 router = APIRouter()
 
@@ -199,3 +199,36 @@ def ai_review_copilot_analyze(payload: ReviewCopilotRequest):
 def ai_cost_estimate(paper_chars: int = 5000, review_count: int = 3):
     """Return a cost estimate before running the AI analysis."""
     return estimate_cost(paper_chars, review_count)
+
+# ── Phase 17: Structured PDF extraction ──────────────────────────────────
+
+@router.post("/documents/extract-structured")
+async def extract_structured_endpoint(
+    file: UploadFile = File(...),
+):
+    """
+    Full structured extraction from PDF, DOCX, or plain text.
+    Returns sections, tables (as Markdown), structured references,
+    figure captions, and PDF metadata.
+    Detects scanned PDFs and returns a clear warning.
+    """
+    content = await file.read()
+    paper   = extract_structured(file.filename or "upload.pdf", content)
+    return {
+        "filename":           file.filename,
+        "extraction_method":  paper.extraction_method,
+        "is_scanned":         paper.is_scanned,
+        "page_count":         paper.page_count,
+        "char_count":         paper.char_count,
+        "raw_text_preview":   paper.raw_text[:800],
+        "section_count":      len(paper.sections),
+        "sections":           paper.sections[:20],
+        "table_count":        len(paper.tables),
+        "tables":             paper.tables[:10],
+        "reference_count":    len(paper.references),
+        "references":         paper.references[:40],
+        "figure_count":       len(paper.figures),
+        "figures":            paper.figures[:20],
+        "metadata":           paper.metadata,
+        "warnings":           paper.warnings,
+    }
