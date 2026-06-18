@@ -12,6 +12,10 @@ from app.schemas.api import (
     ReviewerFatigueOut, ReviewerFatigueRequest,
     ReviewOut, ReviewRequest,
 )
+from app.services.badge_service import (
+    register_badge, get_badge, list_badges,
+    generate_badge_svg, generate_score_svg, badge_report,
+)
 from app.services.ai_review_copilot import run_ai_review_copilot, estimate_cost
 from app.services.claim_verification import run_claim_verification
 from app.services.dataset_engine import create_dataset_card, reproducibility_check
@@ -232,3 +236,47 @@ async def extract_structured_endpoint(
         "metadata":           paper.metadata,
         "warnings":           paper.warnings,
     }
+
+# ── Issue #16: Reproducibility Badge System ───────────────────────────────
+
+@router.post("/badge/register")
+def badge_register(payload: ReviewCopilotRequest):
+    """Analyse paper and register a reproducibility badge."""
+    try:
+        return register_badge(payload.document_text)
+    except Exception as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+@router.get("/badge/{paper_hash_id}.svg")
+def badge_svg(paper_hash_id: str, style: str = "flat"):
+    """Serve embeddable SVG badge. style: flat | flat-square | for-the-badge"""
+    from fastapi.responses import Response
+    svg = generate_badge_svg(paper_hash_id, style=style)
+    return Response(content=svg, media_type="image/svg+xml",
+                    headers={"Cache-Control": "max-age=3600"})
+
+
+@router.get("/badge/{paper_hash_id}/report")
+def badge_report_endpoint(paper_hash_id: str):
+    """Return Markdown reproducibility report for a paper."""
+    data = get_badge(paper_hash_id)
+    if not data:
+        raise HTTPException(status_code=404, detail="Badge not found")
+    return {"hash": paper_hash_id, "report": badge_report(paper_hash_id), "data": data}
+
+
+@router.get("/badge/score/{score}.svg")
+def score_svg(score: int, label: str = "Reproducibility"):
+    """Quick SVG badge from raw score (0-100)."""
+    from fastapi.responses import Response
+    if not 0 <= score <= 100:
+        raise HTTPException(status_code=422, detail="Score must be 0-100")
+    svg = generate_score_svg(score, label)
+    return Response(content=svg, media_type="image/svg+xml")
+
+
+@router.get("/badges")
+def badges_list():
+    """Public registry — list all registered paper badges."""
+    return {"badges": list_badges(), "count": len(list_badges())}
