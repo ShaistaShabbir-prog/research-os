@@ -328,3 +328,42 @@ def auth_update_profile(
     if not user:
         raise HTTPException(status_code=401, detail="Authentication required.")
     return update_profile(db, user, payload.full_name, payload.plan)
+
+# ── Issue #18: Enhanced health check ─────────────────────────────────────
+
+@router.get("/health/deep")
+def health_deep(db: Session = Depends(get_db)):
+    """Deep health check — verifies DB connection and key services."""
+    import time as _time
+    t0 = _time.time()
+    checks: dict[str, Any] = {}
+    
+    # DB check
+    try:
+        db.execute(__import__("sqlalchemy").text("SELECT 1"))
+        checks["database"] = "ok"
+    except Exception as e:
+        checks["database"] = f"error: {str(e)[:50]}"
+    
+    # Service imports
+    for svc in ["review_copilot","claim_verification","reviewer_fatigue","research_memory","badge_service"]:
+        try:
+            __import__(f"app.services.{svc}")
+            checks[svc] = "ok"
+        except Exception as e:
+            checks[svc] = f"error: {str(e)[:30]}"
+    
+    elapsed = round((_time.time() - t0) * 1000, 1)
+    all_ok  = all(v == "ok" for v in checks.values())
+    
+    return {
+        "status":        "healthy" if all_ok else "degraded",
+        "checks":        checks,
+        "elapsed_ms":    elapsed,
+        "version":       "1.0.0",
+        "phases_live":   ["phase1_review_copilot","phase2_claim_verification",
+                          "phase3_reviewer_fatigue","phase4_research_memory",
+                          "phase5_ai_copilot","issue16_badges","issue17_pdf",
+                          "issue10_auth","issue13_chat","issue14_api_keys",
+                          "issue15_conference"],
+    }
