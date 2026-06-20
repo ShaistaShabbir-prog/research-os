@@ -157,6 +157,26 @@ export const apiClient = {
       ethics: string[]; human_verification_required: boolean;
     }>("/api/research-memory/compare", { method: "POST", body: JSON.stringify(payload) }),
 
+
+  copilotChat: (payload: {
+    question: string;
+    history?: Array<{ role: string; content: string }>;
+    context?: Record<string, any> | null;
+  }) =>
+    request<{
+      answer: string;
+      ai_powered: boolean;
+      model: string;
+      human_verification_required: boolean;
+      suggested_questions: string[];
+      fallback_reason?: string;
+    }>("/api/copilot/chat", { method: "POST", body: JSON.stringify(payload) }),
+
+  copilotSuggestions: (paperHash?: string) =>
+    request<{ suggestions: string[] }>(
+      `/api/copilot/suggestions${paperHash ? `?paper_hash=${paperHash}` : ""}`
+    ),
+
   listProjects: () => request<any[]>("/api/projects"),
   createProject: (p: { title: string; project_type: string; description?: string }) =>
     request<any>("/api/projects", { method: "POST", body: JSON.stringify(p) }),
