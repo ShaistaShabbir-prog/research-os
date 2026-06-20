@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from app.core.db import get_db
 from app.models.entities import Document, Project, Review
 from app.schemas.api import (
+    CopilotChatRequest,
     UserRegisterRequest, UserLoginRequest, UserOut, UserUpdateRequest,
     ClaimVerificationOut, ClaimVerificationRequest,
     DatasetCardOut, DatasetCardRequest,
@@ -367,3 +368,30 @@ def health_deep(db: Session = Depends(get_db)):
                           "issue10_auth","issue13_chat","issue14_api_keys",
                           "issue15_conference"],
     }
+
+# ── Issue #29: Copilot Chat ────────────────────────────────────────────────
+
+@router.post("/copilot/chat")
+def copilot_chat_endpoint(payload: CopilotChatRequest):
+    """
+    Context-aware research assistant chat.
+    Claude-powered with heuristic fallback.
+    """
+    from app.services.copilot_chat import chat, suggested_questions
+    try:
+        history = [m.model_dump() for m in payload.history]
+        result  = chat(payload.question, history, payload.context)
+        return {
+            **result,
+            "suggested_questions": suggested_questions(payload.context),
+        }
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+@router.get("/copilot/suggestions")
+def copilot_suggestions(paper_hash: str | None = None):
+    """Return suggested questions for the copilot."""
+    from app.services.copilot_chat import suggested_questions
+    context = {"paper_hash": paper_hash} if paper_hash else None
+    return {"suggestions": suggested_questions(context)}
