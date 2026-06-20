@@ -1,46 +1,102 @@
 "use client";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { FileText, Database, GitBranch, TrendingUp, Plus, ArrowRight } from "lucide-react";
+import { BarChart2, CheckCircle, Loader2, Scale, Search, Award, MessageSquare, Brain, Users } from "lucide-react";
 
-const STATS = [
-  {icon:FileText,label:"Projects",value:"–",color:"text-indigo-400",bg:"bg-indigo-500/10"},
-  {icon:TrendingUp,label:"Avg. score",value:"–",color:"text-emerald-400",bg:"bg-emerald-500/10"},
-  {icon:Database,label:"Datasets",value:"–",color:"text-amber-400",bg:"bg-amber-500/10"},
-  {icon:GitBranch,label:"Graph nodes",value:"–",color:"text-purple-400",bg:"bg-purple-500/10"},
+const TOOLS = [
+  { href:"/review-copilot",     icon:<Scale style={{width:16}}/>,      label:"Review Copilot"    },
+  { href:"/claim-verification", icon:<Search style={{width:16}}/>,     label:"Claim Verification"},
+  { href:"/reviewer-fatigue",   icon:<Users style={{width:16}}/>,      label:"Reviewer Fatigue"  },
+  { href:"/research-memory",    icon:<Brain style={{width:16}}/>,      label:"Research Memory"   },
+  { href:"/badges",             icon:<Award style={{width:16}}/>,      label:"Badges"            },
+  { href:"/copilot",            icon:<MessageSquare style={{width:16}}/>, label:"Copilot Chat"  },
 ];
 
-const QUICK = [
-  {icon:FileText,label:"New supervisor review",href:"/supervisor",color:"text-indigo-400"},
-  {icon:Database,label:"Generate dataset card",href:"/datasets",color:"text-emerald-400"},
-  {icon:GitBranch,label:"Extract knowledge graph",href:"/graph",color:"text-purple-400"},
-];
+interface HealthStatus { status: string; checks: Record<string,string>; elapsed_ms: number; phases_live: string[] }
 
 export default function DashboardPage() {
+  const [health, setHealth] = useState<HealthStatus | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const API = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+
+  useEffect(() => {
+    fetch(`${API}/api/health/deep`)
+      .then(r => r.json())
+      .then(d => { setHealth(d); setLoading(false); })
+      .catch(() => setLoading(false));
+  }, [API]);
+
+  const card: React.CSSProperties = {
+    background:"rgba(255,255,255,.04)", border:"1px solid rgba(255,255,255,.08)",
+    borderRadius:14, padding:18,
+  };
+
   return (
-    <div className="pt-10 space-y-8">
-      <div className="flex items-center justify-between">
-        <h1 className="text-4xl font-bold">Dashboard</h1>
-        <Link href="/supervisor" className="btn"><Plus className="w-4 h-4"/>New review</Link>
-      </div>
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {STATS.map(s=>(
-          <div key={s.label} className="card flex items-center gap-4">
-            <div className={`p-3 rounded-xl ${s.bg}`}><s.icon className={`w-6 h-6 ${s.color}`}/></div>
-            <div><p className="text-2xl font-bold">{s.value}</p><p className="text-sm text-slate-400">{s.label}</p></div>
+    <main style={{minHeight:"100vh",padding:"32px 16px",fontFamily:"Inter,system-ui,sans-serif"}}>
+      <div style={{maxWidth:1060,margin:"0 auto"}}>
+        <div style={{marginBottom:24}}>
+          <div style={{fontSize:11,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",color:"#a78bfa",marginBottom:6}}>ResearchOS</div>
+          <h1 style={{fontSize:24,fontWeight:800,color:"#fff",margin:0}}>Dashboard</h1>
+          <p style={{fontSize:13,color:"rgba(255,255,255,.45)",marginTop:4}}>System status and quick access to all tools.</p>
+        </div>
+
+        {/* Quick actions */}
+        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(160px,1fr))",gap:10,marginBottom:24}}>
+          {TOOLS.map(t=>(
+            <Link key={t.href} href={t.href} style={{textDecoration:"none"}}>
+              <div style={{...card,display:"flex",alignItems:"center",gap:10,cursor:"pointer",padding:"14px 16px"}}>
+                <span style={{color:"#a78bfa"}}>{t.icon}</span>
+                <span style={{fontSize:12,fontWeight:700,color:"#fff"}}>{t.label}</span>
+              </div>
+            </Link>
+          ))}
+        </div>
+
+        {/* System health */}
+        <div style={card}>
+          <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:16}}>
+            <BarChart2 style={{width:16,color:"#a78bfa"}}/>
+            <span style={{fontSize:14,fontWeight:700,color:"#fff"}}>System health</span>
+            {loading && <Loader2 style={{width:13,animation:"spin 1s linear infinite",color:"rgba(255,255,255,.4)"}}/>}
+            {health && (
+              <span style={{fontSize:11,padding:"2px 8px",borderRadius:20,
+                background:health.status==="healthy"?"rgba(16,185,129,.15)":"rgba(245,158,11,.12)",
+                color:health.status==="healthy"?"#4ade80":"#fbbf24"}}>
+                {health.status} · {health.elapsed_ms}ms
+              </span>
+            )}
           </div>
-        ))}
+          {health ? (
+            <div>
+              <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(180px,1fr))",gap:8,marginBottom:16}}>
+                {Object.entries(health.checks).map(([key,val])=>(
+                  <div key={key} style={{display:"flex",alignItems:"center",gap:8,padding:"8px 12px",borderRadius:8,
+                    background:val==="ok"?"rgba(16,185,129,.06)":"rgba(239,68,68,.06)",
+                    border:`1px solid ${val==="ok"?"rgba(16,185,129,.2)":"rgba(239,68,68,.2)"}`}}>
+                    <CheckCircle style={{width:12,color:val==="ok"?"#4ade80":"#f87171",flexShrink:0}}/>
+                    <span style={{fontSize:11,color:"rgba(255,255,255,.7)"}}>{key.replaceAll("_"," ")}</span>
+                  </div>
+                ))}
+              </div>
+              <div style={{fontSize:11,color:"rgba(255,255,255,.3)"}}>
+                Phases live: {health.phases_live?.join(", ")}
+              </div>
+            </div>
+          ) : loading ? (
+            <div style={{fontSize:13,color:"rgba(255,255,255,.3)"}}>Checking API health…</div>
+          ) : (
+            <div style={{fontSize:13,color:"#f87171"}}>API unreachable — check NEXT_PUBLIC_API_BASE_URL</div>
+          )}
+        </div>
+
+        {/* Ethics */}
+        <div style={{...card,marginTop:16,background:"rgba(245,158,11,.04)",borderColor:"rgba(245,158,11,.15)"}}>
+          <p style={{fontSize:12,color:"rgba(255,255,255,.5)",margin:0,lineHeight:1.7}}>
+            ⚠ <strong style={{color:"#fbbf24"}}>Disclaimer:</strong> ResearchOS supports human review and must not be used as an automated decision system. All outputs require human verification.
+          </p>
+        </div>
       </div>
-      <div className="grid md:grid-cols-3 gap-4">
-        {QUICK.map(q=>(
-          <Link key={q.label} href={q.href} className="card flex items-center justify-between group hover:border-white/20 transition-colors">
-            <div className="flex items-center gap-3"><q.icon className={`w-5 h-5 ${q.color}`}/><span className="font-medium text-sm">{q.label}</span></div>
-            <ArrowRight className="w-4 h-4 text-slate-600 group-hover:text-white transition-colors"/>
-          </Link>
-        ))}
-      </div>
-      <div className="card">
-        <p className="text-sm text-slate-500 text-center py-12">No reviews yet. <Link href="/supervisor" className="text-indigo-400 hover:text-indigo-300">Start your first review →</Link></p>
-      </div>
-    </div>
+    </main>
   );
 }
