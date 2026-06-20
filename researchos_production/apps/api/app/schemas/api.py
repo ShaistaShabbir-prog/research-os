@@ -172,3 +172,22 @@ class UserOut(BaseModel):
 class UserUpdateRequest(BaseModel):
     full_name: str | None = None
     plan: str | None = None
+# ── Copilot Chat ──────────────────────────────────────────────────────────
+
+class CopilotChatMessage(BaseModel):
+    role: str  # "user" | "assistant"
+    content: str
+
+
+class CopilotChatRequest(BaseModel):
+    question: str
+    history: list[CopilotChatMessage] = []
+    context: dict | None = None
+
+
+class CopilotChatOut(BaseModel):
+    answer: str
+    ai_powered: bool
+    model: str
+    human_verification_required: bool
+    fallback_reason: str | None = None
