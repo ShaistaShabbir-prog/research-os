@@ -395,3 +395,42 @@ def copilot_suggestions(paper_hash: str | None = None):
     from app.services.copilot_chat import suggested_questions
     context = {"paper_hash": paper_hash} if paper_hash else None
     return {"suggestions": suggested_questions(context)}
+# ── Issue #33: API Key Middleware ─────────────────────────────────────────
+
+from fastapi import Header
+
+async def verify_api_key_dep(x_api_key: str = Header(None)):
+    """Dependency: validate X-API-Key header. Skip if no key configured (dev mode)."""
+    import os
+    if os.getenv("API_KEY_ENFORCEMENT", "false").lower() != "true":
+        return None  # dev mode — skip enforcement
+    if not x_api_key:
+        raise HTTPException(status_code=401, detail="X-API-Key header required.")
+    from app.services.api_key_service import verify_api_key
+    data = verify_api_key(x_api_key)
+    if not data:
+        raise HTTPException(status_code=401, detail="Invalid or rate-limited API key.")
+    return data
+
+
+@router.post("/keys/generate")
+def generate_key(user_id: int = 1, plan: str = "free", email: str = "user@example.com"):
+    """Generate a new API key. In production this requires auth."""
+    from app.services.api_key_service import generate_api_key
+    return generate_api_key(user_id, email, plan)
+
+
+@router.delete("/keys/{key_id}")
+def revoke_key(key_id: str, user_id: int = 1):
+    """Revoke an API key."""
+    from app.services.api_key_service import revoke_key
+    if not revoke_key(key_id, user_id):
+        raise HTTPException(status_code=404, detail="Key not found or not owned by user.")
+    return {"revoked": True, "key_id": key_id}
+
+
+@router.get("/keys")
+def list_keys(user_id: int = 1):
+    """List API keys for a user."""
+    from app.services.api_key_service import list_keys
+    return {"keys": list_keys(user_id)}
