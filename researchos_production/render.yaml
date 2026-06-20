@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: researchos-api
+    env: python
+    buildCommand: pip install -r apps/api/requirements.txt
+    startCommand: uvicorn apps.api.app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: DATABASE_URL
+        value: sqlite:///./researchos.db
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ADMIN_PASSWORD
+        generateValue: true
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: API_KEY_ENFORCEMENT
+        value: "false"
+      - key: CORS_ORIGINS
+        value: "https://research-os-phi.vercel.app"
