@@ -434,3 +434,38 @@ def list_keys(user_id: int = 1):
     """List API keys for a user."""
     from app.services.api_key_service import list_keys
     return {"keys": list_keys(user_id)}
+
+# ── Issue #45: Paper similarity detection ─────────────────────────────────
+
+@router.post("/similarity/check", tags=["Research Tools"])
+def check_paper_similarity(
+    title:    str = Body(..., embed=True),
+    abstract: str = Body("", embed=True),
+    top_k:    int = Body(5,  embed=True),
+):
+    """Check paper similarity against Semantic Scholar corpus."""
+    from app.services.similarity import check_similarity
+    return check_similarity(title, abstract, top_k=top_k)
+
+
+# ── Issue #46: Reviewer recommendation ────────────────────────────────────
+
+@router.post("/reviewers/suggest", tags=["Research Tools"])
+def suggest_reviewers(
+    title:    str       = Body(..., embed=True),
+    abstract: str       = Body("", embed=True),
+    keywords: list[str] = Body([], embed=True),
+    top_k:    int       = Body(10, embed=True),
+):
+    """Suggest reviewers from Semantic Scholar based on paper topic."""
+    from app.services.reviewer_match import suggest_reviewers as _suggest
+    return _suggest(title, abstract, keywords=keywords, top_k=top_k)
+
+
+# ── Issue #49: Ethics checklist ────────────────────────────────────────────
+
+@router.post("/ethics/check", tags=["Research Tools"])
+def ethics_check(document_text: str = Body(..., embed=True)):
+    """Run ACL/NeurIPS ethics checklist against paper text."""
+    from app.services.ethics_check import run_checklist
+    return run_checklist(document_text)
